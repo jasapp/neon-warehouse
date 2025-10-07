@@ -11,6 +11,9 @@ authors = [
     {name = "jasapp", email = "jasapp@gmail.com"}
 ]
 
+[tool.setuptools]
+packages = ["tools", "tools.shipstation", "tools.shopify"]
+
 [tool.black]
 line-length = 100
 target-version = ['py310']

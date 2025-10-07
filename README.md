@@ -117,10 +117,14 @@ Store them in `.env` file (never commit this!).
 - [x] ShipStation: Mark order as rush (with idempotency)
 - [x] ShipStation: List orders by status
 - [x] Generic tag management (any tag, not just RUSH)
+- [x] ShipStation: Add internal notes with special tag
+- [x] Unified warehouse command with fuzzy matching
+- [x] Unit tests with mocked APIs (49 tests passing)
+- [ ] Telegram bot integration (mobile access)
+- [ ] Shopify: Draft order + send invoice
 - [ ] Shopify: Check inventory
 - [ ] Shopify: Get product details
 - [ ] Logging infrastructure (console + file + Notion)
-- [ ] Unit tests with mocked APIs
 - [ ] Sandbox/test environment setup
 - [ ] CLI interface improvements
 - [ ] Documentation

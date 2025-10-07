@@ -12,8 +12,12 @@ from typing import Any, Optional
 import requests
 from dotenv import load_dotenv
 
-# Load environment variables
-load_dotenv()
+# Load environment variables from root or config directory
+from pathlib import Path
+env_path = Path(__file__).parent.parent.parent / ".env"
+if not env_path.exists():
+    env_path = Path(__file__).parent.parent.parent / "config" / ".env"
+load_dotenv(env_path)
 
 API_BASE = "https://ssapi.shipstation.com"
 API_KEY = os.getenv("SHIPSTATION_API_KEY")
@@ -30,17 +34,33 @@ def parse_order(raw: dict[str, Any]) -> dict[str, Any]:
     Returns:
         Cleaned order dict with relevant fields
     """
+    # Safely handle tags - can be None or list of dicts/strings
+    tags_raw = raw.get("tagIds") or raw.get("tags") or []
+    if tags_raw and isinstance(tags_raw[0], dict):
+        tags = [tag.get("name", "") for tag in tags_raw]
+    else:
+        tags = list(tags_raw) if isinstance(tags_raw, (list, tuple)) else []
+
+    # Safely handle shipments
+    shipments = raw.get("shipments", [])
+    tracking_number = None
+    carrier = None
+    if shipments:
+        tracking_number = shipments[0].get("trackingNumber")
+        carrier = shipments[0].get("carrierCode")
+
     return {
         "order_id": raw.get("orderId"),
         "order_number": raw.get("orderNumber"),
         "order_key": raw.get("orderKey"),
         "order_status": raw.get("orderStatus"),
         "customer_email": raw.get("customerEmail"),
+        "customer_name": raw.get("shipTo", {}).get("name"),
         "order_date": raw.get("orderDate"),
         "ship_date": raw.get("shipDate"),
-        "tracking_number": raw.get("shipments", [{}])[0].get("trackingNumber") if raw.get("shipments") else None,
-        "carrier": raw.get("shipments", [{}])[0].get("carrierCode") if raw.get("shipments") else None,
-        "tags": [tag["name"] for tag in raw.get("tagIds", [])],
+        "tracking_number": tracking_number,
+        "carrier": carrier,
+        "tags": tags,
         "items": [
             {
                 "name": item.get("name"),
@@ -122,7 +142,10 @@ def main() -> None:
         # Pretty print
         print(f"\n📦 Order #{order['order_number']}")
         print(f"Status: {order['order_status']}")
-        print(f"Customer: {order['customer_email']}")
+        if order.get('customer_name'):
+            print(f"Customer: {order['customer_name']} ({order['customer_email']})")
+        else:
+            print(f"Customer: {order['customer_email']}")
         print(f"Order Date: {order['order_date']}")
 
         if order['tracking_number']:

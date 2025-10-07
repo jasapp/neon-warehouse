@@ -113,14 +113,16 @@ Store them in `.env` file (never commit this!).
 ## Roadmap
 
 - [x] Project structure
-- [ ] ShipStation: Get order info
-- [ ] ShipStation: Mark order as rush
-- [ ] ShipStation: List orders by status
+- [x] ShipStation: Get order info
+- [x] ShipStation: Mark order as rush (with idempotency)
+- [x] ShipStation: List orders by status
+- [x] Generic tag management (any tag, not just RUSH)
 - [ ] Shopify: Check inventory
 - [ ] Shopify: Get product details
 - [ ] Logging infrastructure (console + file + Notion)
 - [ ] Unit tests with mocked APIs
-- [ ] CLI interface
+- [ ] Sandbox/test environment setup
+- [ ] CLI interface improvements
 - [ ] Documentation
 
 ## Contributing

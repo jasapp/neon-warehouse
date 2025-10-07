@@ -25,47 +25,7 @@ API_KEY = os.getenv("SHIPSTATION_API_KEY")
 API_SECRET = os.getenv("SHIPSTATION_API_SECRET")
 
 # Import from existing tools
-from .get_order import fetch_order as fetch_order_by_number
-from .list_orders import fetch_orders, parse_order_summary
-
-
-def find_order_by_number(order_number: str) -> Optional[dict[str, Any]]:
-    """
-    Find order by order number.
-
-    Args:
-        order_number: The order number to find
-
-    Returns:
-        Order dict or None if not found
-    """
-    try:
-        return fetch_order_by_number(order_number)
-    except Exception:
-        return None
-
-
-def find_orders_by_name(name: str) -> list[dict[str, Any]]:
-    """
-    Find orders by customer name (case-insensitive partial match).
-    Only searches awaiting_shipment orders.
-
-    Args:
-        name: Customer name to search for
-
-    Returns:
-        List of matching order dicts
-    """
-    orders = fetch_orders(status="awaiting_shipment", page_size=500)
-    name_lower = name.lower()
-
-    matches = []
-    for order in orders:
-        customer_name = order.get("shipTo", {}).get("name", "")
-        if customer_name and name_lower in customer_name.lower():
-            matches.append(order)
-
-    return matches
+from .find_order import find_order_by_number, find_orders_by_name, select_order_from_list
 
 
 def get_tag_id(tag_name: str) -> Optional[int]:
@@ -208,44 +168,6 @@ def confirm_action(order: dict[str, Any]) -> bool:
     print()
     response = input("Add RUSH tag to this order? (y/n): ").strip().lower()
     return response == 'y' or response == 'yes'
-
-
-def select_order_from_list(orders: list[dict[str, Any]]) -> Optional[dict[str, Any]]:
-    """
-    Show list of orders and let user select one.
-
-    Args:
-        orders: List of order dicts
-
-    Returns:
-        Selected order or None if cancelled
-    """
-    print(f"\nFound {len(orders)} matching orders:\n")
-
-    for i, order in enumerate(orders, 1):
-        ship_to = order.get("shipTo", {})
-        customer_name = ship_to.get("name", "Unknown")
-        customer_email = order.get("customerEmail", "")
-        order_number = order.get("orderNumber")
-        order_total = order.get("orderTotal", 0)
-
-        print(f"{i}. #{order_number} - {customer_name} ({customer_email}) - ${order_total:.2f}")
-
-    print()
-    response = input("Select order number (or 'cancel'): ").strip()
-
-    if response.lower() == 'cancel':
-        return None
-
-    try:
-        index = int(response) - 1
-        if 0 <= index < len(orders):
-            return orders[index]
-    except ValueError:
-        pass
-
-    print("Invalid selection.")
-    return None
 
 
 def mark_rush(query: str, confirm: bool = True) -> None:

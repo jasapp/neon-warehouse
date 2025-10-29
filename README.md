@@ -20,34 +20,34 @@ The user is an ex-Lisp/Clojure dev who values simplicity and elegance. Keep func
 
 ## What This Does
 
-Provides tools for Claude (and humans) to interact with:
-- **ShipStation** - order management, tracking, rush orders
-- **Shopify** - inventory checks, product data
-- **More to come** - whatever else needs automating
+Provides example CLI tools and custom queries using:
+- **shipstation-mcp** - All core ShipStation operations now via MCP
+- **Shopify** - inventory checks, product data (coming soon)
+
+This repo now serves as:
+- Example scripts for custom ShipStation queries
+- Reference for using shipstation-mcp
 
 **Design Philosophy:**
-- Small, composable functions
-- Pure functions for data transformation
-- IO/side effects isolated and explicit
-- Good logging and error handling
-- Usable as CLI tools or library functions
+- Use shipstation-mcp for all core operations
+- Keep custom business logic here (like DC2 email extraction)
+- Simple CLI wrappers when needed
 
 ## Project Structure
 
 ```
 neon-warehouse/
 ├── tools/
-│   ├── shipstation/        # ShipStation API tools
-│   ├── shopify/            # Shopify API tools
-│   └── __init__.py
-├── tests/                  # Unit tests
-├── docs/                   # API documentation
+│   ├── shipstation/        # Uses shipstation-mcp
+│   │   ├── __init__.py     # Re-exports from shipstation-mcp
+│   │   └── get_dc2_emails.py  # Example custom query
+│   └── shopify/            # Shopify tools (coming soon)
 ├── config/
 │   └── .env.example        # Environment variables template
-├── requirements.txt        # Python dependencies
-├── pyproject.toml          # Modern Python package config
 └── README.md
 ```
+
+**Note:** Core ShipStation operations have moved to the `shipstation-mcp` package.
 
 ## Installation
 
@@ -64,23 +64,29 @@ Copy `.env.example` to `.env` and add your API credentials.
 
 ### As Library
 ```python
-from tools.shipstation import get_order_info
+from tools.shipstation import get_order, find_order, mark_rush
 
-order = get_order_info("12345")
-print(f"Order status: {order['order_status']}")
+# All functions now use shipstation-mcp
+order = get_order("9471")
+print(f"Order status: {order['orderStatus']}")
+
+# Find orders
+orders = find_order("John Smith")
+print(f"Found {len(orders)} orders")
+
+# Mark as rush
+result = mark_rush("9471")
 ```
 
-### As CLI
+### Example: Custom Query
 ```bash
-python -m tools.shipstation.get_order 12345
+# Get DC2 customer emails
+python -m tools.shipstation.get_dc2_emails
 ```
 
-### With Claude
-Just ask! Claude has access to these tools and can:
-- Check order status
-- Mark orders as rush
-- Check inventory levels
-- And more...
+### With shipstation-mcp
+All ShipStation operations now use the `shipstation-mcp` MCP server.
+See https://github.com/jasapp/shipstation-mcp for details.
 
 ## Development
 
@@ -112,22 +118,12 @@ Store them in `.env` file (never commit this!).
 
 ## Roadmap
 
-- [x] Project structure
-- [x] ShipStation: Get order info
-- [x] ShipStation: Mark order as rush (with idempotency)
-- [x] ShipStation: List orders by status
-- [x] Generic tag management (any tag, not just RUSH)
-- [x] ShipStation: Add internal notes with special tag
-- [x] Unified warehouse command with fuzzy matching
-- [x] Unit tests with mocked APIs (49 tests passing)
-- [ ] Telegram bot integration (mobile access)
+- [x] Core ShipStation operations moved to shipstation-mcp
+- [x] Example custom queries (DC2 emails)
 - [ ] Shopify: Draft order + send invoice
 - [ ] Shopify: Check inventory
 - [ ] Shopify: Get product details
-- [ ] Logging infrastructure (console + file + Notion)
-- [ ] Sandbox/test environment setup
-- [ ] CLI interface improvements
-- [ ] Documentation
+- [ ] More example queries and CLI tools
 
 ## Contributing
 

@@ -1,11 +1,28 @@
 """
-ShipStation API tools
+ShipStation tools - now powered by shipstation-mcp
 
-Functional wrappers around ShipStation API for order management.
+All core ShipStation operations now use the shipstation-mcp package.
 """
 
-from .get_order import get_order_info
-from .list_orders import list_orders_by_status
-from .mark_rush import mark_rush
+# Import from shipstation-mcp
+import sys
+sys.path.insert(0, '/home/jasapp/src/shipstation-mcp/src')
 
-__all__ = ["get_order_info", "list_orders_by_status", "mark_rush"]
+from shipstation_mcp.core.operations import (
+    find_order,
+    get_order,
+    list_orders,
+    mark_rush,
+    add_note,
+    get_tag_list,
+)
+
+# Re-export for backwards compatibility
+__all__ = [
+    "find_order",
+    "get_order",
+    "list_orders",
+    "mark_rush",
+    "add_note",
+    "get_tag_list",
+]
